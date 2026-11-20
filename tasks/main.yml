@@ -1,0 +1,36 @@
+---
+- name: Include user setup tasks
+  ansible.builtin.include_tasks: users.yml
+
+- name: Include SSH hardening tasks
+  ansible.builtin.include_tasks: ssh.yml
+
+- name: Include firewall tasks
+  ansible.builtin.include_tasks: firewall.yml
+
+- name: Include distro install tasks
+  ansible.builtin.include_tasks: install/alpine.yml
+  when: ansible_distribution == 'Alpine'
+
+- name: Include AlmaLinux install tasks
+  ansible.builtin.include_tasks: install/almalinux.yml
+  when: ansible_distribution == 'AlmaLinux'
+
+- name: Include Debian install tasks
+  ansible.builtin.include_tasks: install/debian.yml
+  when: ansible_distribution == 'Debian'
+
+- name: Include Fedora install tasks
+  ansible.builtin.include_tasks: install/fedora.yml
+  when: ansible_distribution == 'Fedora'
+
+- name: Include Rocky Linux install tasks
+  ansible.builtin.include_tasks: install/rockylinux.yml
+  when: ansible_distribution == 'Rocky'
+
+- name: Include Ubuntu install tasks
+  ansible.builtin.include_tasks: install/ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Include tmux + Cloud Code helper tasks
+  ansible.builtin.include_tasks: cloud_code.yml

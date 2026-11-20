@@ -1,0 +1,19 @@
+---
+
+- name: Install the Cloud Code binary when an install URL is provided
+  ansible.builtin.get_url:
+    url: "{{ cloud_code_install_url }}"
+    dest: "/usr/local/bin/{{ cloud_code_command }}"
+    mode: "0755"
+  when: cloud_code_install_url is defined
+
+- name: Deploy the tmux session helper script for Cloud Code
+  ansible.builtin.copy:
+    dest: "/usr/local/bin/{{ tmux_session_name }}-session"
+    mode: "0755"
+    owner: root
+    group: root
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      exec tmux new-session -A -s "{{ tmux_session_name }}" "{{ cloud_code_command }}"

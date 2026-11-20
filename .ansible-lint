@@ -1,0 +1,4 @@
+---
+# No rules are skipped: the role complies with the full rule set.
+# Pin the strictest profile so lint behavior is deterministic across environments.
+profile: production

@@ -1,0 +1,46 @@
+---
+
+- name: Determine the privileged group for the manager user
+  ansible.builtin.set_fact:
+    manager_privileged_group: "{{ 'wheel' if ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora'] else 'sudo' }}"
+
+- name: Create the manager user with sudo privileges
+  ansible.builtin.user:
+    name: "{{ manager_user }}"
+    state: present
+    shell: /bin/bash
+    create_home: true
+    groups: "{{ manager_privileged_group }}"
+    append: true
+
+- name: Create the restricted cloud code user without admin rights
+  ansible.builtin.user:
+    name: "{{ cloud_code_user }}"
+    state: present
+    shell: /bin/bash
+    create_home: true
+    groups: "{{ cloud_code_user }}"
+
+- name: Install the manager SSH public keys
+  ansible.posix.authorized_key:
+    user: "{{ manager_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ manager_ssh_public_keys }}"
+  when: manager_ssh_public_keys | length > 0
+
+- name: Install the cloud code SSH public keys
+  ansible.posix.authorized_key:
+    user: "{{ cloud_code_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ cloud_code_ssh_public_keys }}"
+  when: cloud_code_ssh_public_keys | length > 0
+
+- name: Secure the home directory of the cloud code user
+  ansible.builtin.file:
+    path: "{{ cloud_code_user_home }}"
+    state: directory
+    owner: "{{ cloud_code_user }}"
+    group: "{{ cloud_code_user }}"
+    mode: "0700"

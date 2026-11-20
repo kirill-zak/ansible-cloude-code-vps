@@ -1,10 +1,15 @@
 ---
 collections:
-  # community.general provides the apk module used in molecule verify
-  # (Alpine package checks) and in the role's Alpine install tasks.
+  # community.general provides the apk module (Alpine) and the ufw module
+  # (Debian/Ubuntu firewall) used by the role and its molecule tests.
   #
   # Version range keeps compatibility with the ansible version pinned in
   # requirements.txt (ansible-core 2.16): community.general 12.x requires
   # ansible-core >=2.17 and 13.x requires >=2.18.
   - name: community.general
     version: '>=11.0.0,<12.0.0'
+
+  # ansible.posix provides authorized_key and firewalld modules used for
+  # SSH key management and firewall configuration.
+  - name: ansible.posix
+    version: '>=1.5.0,<2.0.0'

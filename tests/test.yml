@@ -1,0 +1,6 @@
+---
+- name: Role smoke test
+  hosts: all
+  become: true
+  roles:
+    - role: cloude_code_vps
