@@ -1,0 +1,65 @@
+---
+- name: Verify
+  hosts: all
+  become: false
+  vars:
+    # Match the role defaults; the verify playbook runs without including
+    # the role, so its variables are not loaded automatically.
+    manager_user: manager
+    cloud_code_user: code
+  tasks:
+    - name: Gather package facts for non-Alpine distributions
+      ansible.builtin.package_facts:
+        manager: auto
+      when: ansible_distribution != 'Alpine'
+
+    - name: Check tmux is installed (non-Alpine)
+      ansible.builtin.assert:
+        that: "'tmux' in ansible_facts.packages"
+      when: ansible_distribution != 'Alpine'
+
+    - name: Check tmux package status (Alpine)
+      community.general.apk:
+        name: tmux
+        state: latest
+        no_cache: true
+      register: alpine_tmux
+      when: ansible_distribution == 'Alpine'
+
+    - name: Assert tmux is installed (Alpine)
+      ansible.builtin.assert:
+        that: "false == alpine_tmux['changed']"
+      when: ansible_distribution == 'Alpine'
+
+    - name: Check manager user exists
+      ansible.builtin.user:
+        name: "{{ manager_user }}"
+        state: present
+      register: manager_user_check
+
+    - name: Assert manager user exists
+      ansible.builtin.assert:
+        that: "manager_user_check['state'] == 'present'"
+
+    - name: Check cloud code user exists
+      ansible.builtin.user:
+        name: "{{ cloud_code_user }}"
+        state: present
+      register: code_user_check
+
+    - name: Assert cloud code user exists
+      ansible.builtin.assert:
+        that: "code_user_check['state'] == 'present'"
+
+    - name: Check sshd allows no root login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PermitRootLogin\\s+"
+        line: "PermitRootLogin no"
+        state: present
+      check_mode: true
+      register: sshd_root
+
+    - name: Assert root login is disabled
+      ansible.builtin.assert:
+        that: "false == sshd_root['changed']"

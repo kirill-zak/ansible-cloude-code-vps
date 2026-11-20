@@ -1,0 +1,47 @@
+---
+# Administrator user created for VPS management over SSH + sudo.
+manager_user: manager
+
+# Unprivileged user used to run Cloud Code, restricted to its own home dir.
+cloud_code_user: code
+
+# Administrative user home directory.
+manager_user_home: "/home/{{ manager_user }}"
+
+# Cloud Code user home directory.
+cloud_code_user_home: "/home/{{ cloud_code_user }}"
+
+# Public SSH keys installed for the manager user in authorized_keys.
+manager_ssh_public_keys: []
+
+# Public SSH keys installed for the cloud code user in authorized_keys.
+cloud_code_ssh_public_keys: []
+
+# Port the SSH daemon listens on and that the firewall leaves open.
+ssh_port: 22
+
+# When true, password authentication over SSH is disabled (keys only).
+ssh_disable_password_auth: true
+
+# When true, remote root login over SSH is disabled after provisioning.
+ssh_disable_root_login: true
+
+# Firewall policy: all ports closed by default; only ssh_port is opened.
+firewall_policy: drop
+
+# When true, firewall rules are enabled. Real VPS deployments should keep
+# this enabled. It can be disabled (e.g. in container-based test runners)
+# where the firewall daemon is unavailable.
+firewall_manage: true
+
+# When true, enables brute-force protection for SSH (fail2ban compatible).
+protect_ssh_bruteforce: true
+
+# Optional: enable 2FA (TOTP) for the manager user. Off by default.
+manager_2fa_enabled: false
+
+# Command used to launch Cloud Code inside tmux (used by the helper script).
+cloud_code_command: cloude-code
+
+# tmux session name used for the Cloud Code session.
+tmux_session_name: cloude-code

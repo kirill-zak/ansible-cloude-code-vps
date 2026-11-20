@@ -1,0 +1,6 @@
+---
+- name: Install tmux
+  community.general.apk:
+    name: tmux
+    state: present
+    no_cache: true

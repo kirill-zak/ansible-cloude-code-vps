@@ -1,0 +1,4 @@
+.context/
+
+# Python venv
+.ansible

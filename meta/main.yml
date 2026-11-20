@@ -1,0 +1,41 @@
+---
+galaxy_info:
+  author: kirill_zak
+  description: Harden a VPS and install Cloud Code for remote development
+  company: https://kirill-zak.ru
+  license: GPL-2.0-or-later
+  min_ansible_version: '2.16'
+  namespace: kirill_zak
+  role_name: cloude_code_vps
+  platforms:
+    - name: AlmaLinux
+      versions:
+        - "8"
+        - "9"
+    - name: Alpine
+      versions:
+        - "all"
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Fedora
+      versions:
+        - "43"
+        - "44"
+    - name: Rocky
+      versions:
+        - "all"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+        - resolute
+
+  galaxy_tags: [cloudcode, vps, hardening, ssh, firewall, linux]
+
+dependencies: []

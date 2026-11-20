@@ -1,0 +1,59 @@
+---
+
+- name: Configure firewall (firewalld) for RHEL-based distributions
+  when:
+    - firewall_manage
+    - ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
+    - firewall_policy == 'drop'
+  block:
+    - name: Ensure firewalld is installed
+      ansible.builtin.dnf:
+        name: firewalld
+        state: present
+        use_backend: dnf4
+
+    - name: Ensure the firewalld service is running and enabled
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: Set the default zone policy to drop
+      ansible.posix.firewalld:
+        zone: public
+        state: enabled
+
+    - name: Open the SSH port in the public zone
+      ansible.posix.firewalld:
+        zone: public
+        port: "{{ ssh_port }}/tcp"
+        permanent: true
+        state: enabled
+        immediate: true
+
+- name: Configure firewall (ufw) for Debian-based distributions
+  when:
+    - firewall_manage
+    - ansible_distribution in ['Debian', 'Ubuntu']
+    - firewall_policy == 'drop'
+  block:
+    - name: Ensure ufw is installed
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+        update_cache: true
+
+    - name: Allow the SSH port
+      community.general.ufw:
+        rule: allow
+        port: "{{ ssh_port }}"
+        proto: tcp
+
+    - name: Deny all incoming traffic by default
+      community.general.ufw:
+        policy: deny
+        direction: incoming
+
+    - name: Ensure ufw is enabled
+      community.general.ufw:
+        state: enabled

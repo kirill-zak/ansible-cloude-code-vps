@@ -1,0 +1,78 @@
+---
+
+- name: Determine the shell to assign to users
+  ansible.builtin.set_fact:
+    user_shell: "{{ '/bin/bash' if ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora', 'Debian', 'Ubuntu'] else '/bin/sh' }}"
+
+- name: Update the apt cache (Debian and Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  changed_when: false
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Ensure sudo is installed (Alpine)
+  community.general.apk:
+    name: sudo
+    state: present
+  when: ansible_distribution == 'Alpine'
+
+- name: Ensure sudo is installed (Debian and Ubuntu)
+  ansible.builtin.apt:
+    name: sudo
+    state: present
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Ensure sudo is installed (RHEL-based distributions)
+  ansible.builtin.dnf:
+    name: sudo
+    state: present
+    use_backend: dnf4
+  when: ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
+
+- name: Create the manager user
+  ansible.builtin.user:
+    name: "{{ manager_user }}"
+    state: present
+    shell: "{{ user_shell }}"
+    create_home: true
+
+- name: Grant the manager user passwordless sudo
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ manager_user }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"
+    content: "{{ manager_user }} ALL=(ALL) NOPASSWD:ALL\n"
+
+- name: Create the restricted cloud code user
+  ansible.builtin.user:
+    name: "{{ cloud_code_user }}"
+    state: present
+    shell: "{{ user_shell }}"
+    create_home: true
+
+- name: Install the manager SSH public keys
+  ansible.posix.authorized_key:
+    user: "{{ manager_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ manager_ssh_public_keys }}"
+  when: manager_ssh_public_keys | length > 0
+
+- name: Install the cloud code SSH public keys
+  ansible.posix.authorized_key:
+    user: "{{ cloud_code_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ cloud_code_ssh_public_keys }}"
+  when: cloud_code_ssh_public_keys | length > 0
+
+- name: Secure the home directory of the cloud code user
+  ansible.builtin.file:
+    path: "{{ cloud_code_user_home }}"
+    state: directory
+    owner: "{{ cloud_code_user }}"
+    group: "{{ cloud_code_user }}"
+    mode: "0700"

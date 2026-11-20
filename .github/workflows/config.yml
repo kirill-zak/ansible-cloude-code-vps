@@ -1,0 +1,42 @@
+---
+name: Configuration
+
+on:
+  workflow_call:
+    outputs:
+      tests:
+        description: JSON array of test pairs (name, distro, tag)
+        value: ${{ jobs.config.outputs.tests }}
+
+permissions:
+  contents: read
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.values.outputs.tests }}
+    steps:
+      - id: values
+        run: |
+          python3 - "$GITHUB_OUTPUT" <<'EOF'
+          import json
+          import sys
+          tests = []
+          for name, distro, tags in [
+              ("AlmaLinux", "kirillzak/docker-almalinux-ansible", ["9.2"]),
+              ("Alpine", "kirillzak/docker-alpine-ansible", ["latest"]),
+              ("Debian", "kirillzak/docker-debian-ansible", ["12"]),
+              ("Fedora", "kirillzak/docker-fedora-ansible", ["44"]),
+              ("Rocky Linux", "kirillzak/docker-rockylinux-ansible", ["9.2"]),
+              ("Ubuntu", "kirillzak/docker-ubuntu-ansible", ["22.04"]),
+          ]:
+              for tag in tags:
+                  tests.append({
+                      "name": f"{name} {tag}",
+                      "distro": distro,
+                      "tag": tag,
+                  })
+          with open(sys.argv[1], "a") as f:
+              f.write("tests=" + json.dumps(tests, separators=(",", ":")) + "\n")
+          EOF

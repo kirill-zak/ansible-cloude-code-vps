@@ -1,0 +1,28 @@
+---
+- name: Converge
+  hosts: all
+  # The podman driver already connects as root inside the container, so no
+  # become escalation is needed. On the rootless podman available on GitHub
+  # runners, sudo raises "PAM account management error" in the user
+  # namespace, so connecting as root avoids sudo altogether.
+  become: false
+  vars:
+    # The firewall daemon (firewalld/ufw) is not available in the container
+    # test runner, so skip firewall management during tests.
+    firewall_manage: false
+  pre_tasks:
+    - name: Wait for systemd to complete initialization.  # noqa: command-instead-of-module
+      ansible.builtin.command: systemctl is-system-running
+      register: systemctl_status
+      until: >
+        'running' in systemctl_status.stdout or
+        'degraded' in systemctl_status.stdout
+      retries: 30
+      delay: 5
+      when: ansible_service_mgr == 'systemd'
+      changed_when: false
+      failed_when: systemctl_status.rc > 1
+  tasks:
+    - name: Include cloude_code_vps role
+      ansible.builtin.include_role:
+        name: cloude_code_vps
