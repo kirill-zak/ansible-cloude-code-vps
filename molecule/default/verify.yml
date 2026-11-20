@@ -1,7 +1,7 @@
 ---
 - name: Verify
   hosts: all
-  become: true
+  become: false
   vars:
     # Match the role defaults; the verify playbook runs without including
     # the role, so its variables are not loaded automatically.
