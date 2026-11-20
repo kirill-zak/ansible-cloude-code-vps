@@ -2,3 +2,8 @@
 # No rules are skipped: the role complies with the full rule set.
 # Pin the strictest profile so lint behavior is deterministic across environments.
 profile: production
+# Exclude the recursive role symlink used by Molecule so linters do not
+# follow it into an infinite directory walk.
+exclude_paths:
+  - molecule/default/roles/
+  - tests/roles/

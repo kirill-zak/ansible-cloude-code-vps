@@ -29,6 +29,11 @@ ssh_disable_root_login: true
 # Firewall policy: all ports closed by default; only ssh_port is opened.
 firewall_policy: drop
 
+# When true, firewall rules are enabled. Real VPS deployments should keep
+# this enabled. It can be disabled (e.g. in container-based test runners)
+# where the firewall daemon is unavailable.
+firewall_manage: true
+
 # When true, enables brute-force protection for SSH (fail2ban compatible).
 protect_ssh_bruteforce: true
 

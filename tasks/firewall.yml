@@ -2,9 +2,16 @@
 
 - name: Configure firewall (firewalld) for RHEL-based distributions
   when:
+    - firewall_manage
     - ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
     - firewall_policy == 'drop'
   block:
+    - name: Ensure firewalld is installed
+      ansible.builtin.dnf:
+        name: firewalld
+        state: present
+        use_backend: dnf4
+
     - name: Ensure the firewalld service is running and enabled
       ansible.builtin.service:
         name: firewalld
@@ -26,6 +33,7 @@
 
 - name: Configure firewall (ufw) for Debian-based distributions
   when:
+    - firewall_manage
     - ansible_distribution in ['Debian', 'Ubuntu']
     - firewall_policy == 'drop'
   block:

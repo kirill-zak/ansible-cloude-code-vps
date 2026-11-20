@@ -1,25 +1,57 @@
 ---
 
-- name: Determine the privileged group for the manager user
+- name: Determine the shell to assign to users
   ansible.builtin.set_fact:
-    manager_privileged_group: "{{ 'wheel' if ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora'] else 'sudo' }}"
+    user_shell: "{{ '/bin/bash' if ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora', 'Debian', 'Ubuntu'] else '/bin/sh' }}"
 
-- name: Create the manager user with sudo privileges
+- name: Update the apt cache (Debian and Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  changed_when: false
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Ensure sudo is installed (Alpine)
+  community.general.apk:
+    name: sudo
+    state: present
+  when: ansible_distribution == 'Alpine'
+
+- name: Ensure sudo is installed (Debian and Ubuntu)
+  ansible.builtin.apt:
+    name: sudo
+    state: present
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Ensure sudo is installed (RHEL-based distributions)
+  ansible.builtin.dnf:
+    name: sudo
+    state: present
+    use_backend: dnf4
+  when: ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
+
+- name: Create the manager user
   ansible.builtin.user:
     name: "{{ manager_user }}"
     state: present
-    shell: /bin/bash
+    shell: "{{ user_shell }}"
     create_home: true
-    groups: "{{ manager_privileged_group }}"
-    append: true
 
-- name: Create the restricted cloud code user without admin rights
+- name: Grant the manager user passwordless sudo
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ manager_user }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"
+    content: "{{ manager_user }} ALL=(ALL) NOPASSWD:ALL\n"
+
+- name: Create the restricted cloud code user
   ansible.builtin.user:
     name: "{{ cloud_code_user }}"
     state: present
-    shell: /bin/bash
+    shell: "{{ user_shell }}"
     create_home: true
-    groups: "{{ cloud_code_user }}"
 
 - name: Install the manager SSH public keys
   ansible.posix.authorized_key:

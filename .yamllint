@@ -41,3 +41,4 @@ rules:
 # Local virtualenv created by "make create-venv"; do not lint installed packages.
 ignore: |
   .ansible
+  molecule/default/roles
