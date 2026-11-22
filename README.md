@@ -177,7 +177,11 @@ versions, run `make update-venv`.
 | `ssh_allow_agent_forwarding` | Allow SSH agent forwarding | `false` |
 | `firewall_policy` | Firewall default policy | `drop` |
 | `firewall_manage` | Manage the firewall | `true` |
-| `protect_ssh_bruteforce` | Enable SSH brute-force protection | `true` |
+| `protect_ssh_bruteforce` | Enable fail2ban SSH brute-force protection | `true` |
+| `fail2ban_bantime` | Ban duration for repeat offenders | `1h` |
+| `fail2ban_findtime` | Lookback window for counting failures | `10m` |
+| `fail2ban_maxretry` | Allowed failures before a ban | `5` |
+| `fail2ban_banaction` | Firewall backend fail2ban uses | `auto` (per distro) |
 | `manager_2fa_enabled` | Enable optional 2FA (TOTP) for `manager` | `false` |
 | `cloud_code_command` | Command that launches Cloud Code | `cloude-code` |
 | `tmux_session_name` | tmux session name | `cloude-code` |

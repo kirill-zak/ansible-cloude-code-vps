@@ -10,6 +10,9 @@
     # The firewall daemon (firewalld/ufw) is not available in the container
     # test runner, so skip firewall management during tests.
     firewall_manage: false
+    # The fail2ban ban-service is not meaningful without a real init system in
+    # the container test runner, so keep it disabled during tests too.
+    protect_ssh_bruteforce: false
   pre_tasks:
     - name: Wait for systemd to complete initialization.  # noqa: command-instead-of-module
       ansible.builtin.command: systemctl is-system-running
