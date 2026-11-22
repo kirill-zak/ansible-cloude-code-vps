@@ -37,6 +37,36 @@ roles:
   - name: kirill_zak.cloude_code_vps
 ```
 
+## Quick start (local CLI)
+
+The repository ships a `Makefile` that sets up an isolated Python virtual
+environment (`.ansible/`) with Ansible and all required collections. This is
+the simplest way to run the role during development or against your VPS.
+
+```console
+# 1. Create the virtual environment and install Ansible + collections
+$ make create-venv
+
+# 2. Activate the venv (opens a new shell with ansible on PATH)
+$ make activate
+(ansible) $ ansible --version
+
+# 3. Deactivate when you're done
+(ansible) $ exit
+```
+
+You can activate the venv directly instead of using `make activate`:
+
+```console
+$ source .ansible/bin/activate
+```
+
+`make create-venv` installs everything from `requirements.txt`
+(`ansible==9.13.0`, `ansible-lint`, `molecule`, `molecule-plugins[podman]`,
+`yamllint`) plus the collections in `requirements.yml` (`ansible.posix`,
+`community.general`) into `.ansible/`. To refresh everything to the latest
+versions, run `make update-venv`.
+
 ## Supported platforms
 
 | Distribution | Versions |
