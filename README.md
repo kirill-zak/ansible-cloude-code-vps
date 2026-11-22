@@ -6,6 +6,24 @@ for remote development, with the session running inside `tmux`.
 [![CI workflow](https://github.com/kirill-zak/ansible-cloude-code-vps/actions/workflows/ci.yml/badge.svg)](https://github.com/kirill-zak/ansible-cloude-code-vps/actions/workflows/ci.yml)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-kirill_zak.cloude_code_vps-660198.svg)](https://galaxy.ansible.com/kirill_zak/cloude_code_vps)
 
+## Table of Contents
+
+- [What it does](#what-it-does)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick start (from scratch, no clone)](#quick-start-from-scratch-no-clone)
+- [Development setup (this repository)](#development-setup-this-repository)
+- [Supported platforms](#supported-platforms)
+- [Role Variables](#role-variables)
+- [Dependencies](#dependencies)
+- [Provisioning your VPS](#provisioning-your-vps)
+  - [A) Root access by password](#a-root-access-by-password)
+  - [B) Root access by SSH key](#b-root-access-by-ssh-key)
+  - [C) Panel + root password (hybrid)](#c-panel--root-password-hybrid)
+- [Connecting and running Cloud Code](#connecting-and-running-cloud-code)
+- [License](#license)
+- [Author Information](#author-information)
+
 ## What it does
 
 - Creates two users:
