@@ -26,6 +26,28 @@ ssh_disable_password_auth: true
 # When true, remote root login over SSH is disabled after provisioning.
 ssh_disable_root_login: true
 
+# Maximum number of authentication attempts before the SSH daemon drops the
+# connection. Low values reduce brute-force and credential-stuffing exposure.
+ssh_max_auth_tries: 3
+
+# Idle session timeout: after ClientAliveInterval seconds with no traffic,
+# sshd sends a keepalive probe. Up to ClientAliveCountMax failed probes end
+# the session (drops idle, potentially unattended, sessions).
+ssh_client_alive_interval: 300
+ssh_client_alive_count_max: 2
+
+# Seconds granted to complete the login before the connection is dropped.
+ssh_login_grace_time: 60
+
+# When false, users cannot set environment variables via ~/.ssh/environment
+# (PermitUserEnvironment). Prevents environment-based privilege escalation.
+ssh_permit_user_environment: false
+
+# When false, disables SSH agent forwarding. Reduces the risk of other hosts
+# using your ssh-agent while connected to this VPS. TCP forwarding stays
+# enabled because Cloud Code / VS Code needs it for remote port forwarding.
+ssh_allow_agent_forwarding: false
+
 # Firewall policy: all ports closed by default; only ssh_port is opened.
 firewall_policy: drop
 

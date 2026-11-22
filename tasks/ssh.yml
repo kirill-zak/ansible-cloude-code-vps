@@ -53,7 +53,12 @@
     - { key: "PubkeyAuthentication", value: "yes" }
     - { key: "X11Forwarding", value: "no" }
     - { key: "AllowTcpForwarding", value: "yes" }
-    - { key: "MaxAuthTries", value: "6" }
+    - { key: "AllowAgentForwarding", value: "{{ 'yes' if ssh_allow_agent_forwarding else 'no' }}" }
+    - { key: "MaxAuthTries", value: "{{ ssh_max_auth_tries }}" }
     - { key: "MaxSessions", value: "10" }
+    - { key: "ClientAliveInterval", value: "{{ ssh_client_alive_interval }}" }
+    - { key: "ClientAliveCountMax", value: "{{ ssh_client_alive_count_max }}" }
+    - { key: "LoginGraceTime", value: "{{ ssh_login_grace_time }}" }
+    - { key: "PermitUserEnvironment", value: "{{ 'yes' if ssh_permit_user_environment else 'no' }}" }
     - { key: "LogLevel", value: "VERBOSE" }
   notify: "restart sshd"

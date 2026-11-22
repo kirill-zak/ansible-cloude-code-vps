@@ -1,0 +1,33 @@
+# Dependabot keeps dependencies up to date and raises PRs that, with the
+# master branch protection in place, must pass Lint + CI before merging.
+version: 2
+updates:
+  # Python / pip: the Ansible toolchain pinned in requirements.txt.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    open-pull-requests-limit: 10
+    # Ansible and its tooling must keep working across all supported distros
+    # and the molecule test matrix, so review changes with care.
+    ignore:
+      - dependency-name: "ansible-core"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions: action tags are mutable, so version bumps here also reduce
+  # supply-chain risk. Pinned SHAs are kept in sync by this same update.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    open-pull-requests-limit: 10
