@@ -6,6 +6,24 @@ for remote development, with the session running inside `tmux`.
 [![CI workflow](https://github.com/kirill-zak/ansible-cloude-code-vps/actions/workflows/ci.yml/badge.svg)](https://github.com/kirill-zak/ansible-cloude-code-vps/actions/workflows/ci.yml)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-kirill_zak.cloude_code_vps-660198.svg)](https://galaxy.ansible.com/kirill_zak/cloude_code_vps)
 
+## Table of Contents
+
+- [What it does](#what-it-does)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick start (from scratch, no clone)](#quick-start-from-scratch-no-clone)
+- [Development setup (this repository)](#development-setup-this-repository)
+- [Supported platforms](#supported-platforms)
+- [Role Variables](#role-variables)
+- [Dependencies](#dependencies)
+- [Provisioning your VPS](#provisioning-your-vps)
+  - [A) Root access by password](#a-root-access-by-password)
+  - [B) Root access by SSH key](#b-root-access-by-ssh-key)
+  - [C) Panel + root password (hybrid)](#c-panel--root-password-hybrid)
+- [Connecting and running Cloud Code](#connecting-and-running-cloud-code)
+- [License](#license)
+- [Author Information](#author-information)
+
 ## What it does
 
 - Creates two users:
@@ -36,6 +54,98 @@ Or add it to your `requirements.yml`:
 roles:
   - name: kirill_zak.cloude_code_vps
 ```
+
+## Quick start (from scratch, no clone)
+
+You don't need to clone this repository. On a clean laptop, set up a Python
+virtual environment, install Ansible, pull the role from Ansible Galaxy, write
+a small playbook, and run it against your VPS.
+
+**1. Create a virtual environment and install Ansible**
+
+```console
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+(.venv) $ pip install --upgrade pip
+(.venv) $ pip install ansible
+(.venv) $ ansible --version
+```
+
+> Tip: just `ansible`, not `ansible-core` — the `ansible` package bundles the
+> core plus a curated set of collections (including `ansible.posix` and
+> `community.general`, which this role needs).
+
+**2. Install the role from Ansible Galaxy**
+
+```console
+(.venv) $ ansible-galaxy role install kirill_zak.cloude_code_vps
+```
+
+**3. Create a playbook** that calls the role. For example, open a new file
+`playbook.yml` in any text editor (e.g. `vim playbook.yml`) and paste:
+
+```yaml
+---
+- name: Provision VPS
+  hosts: all
+  remote_user: root
+  become: true
+  vars:
+    # Your own public keys, installed for the manager and code users.
+    manager_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3... your-manager-key"
+    cloud_code_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3... your-code-key"
+  roles:
+    - role: kirill_zak.cloude_code_vps
+```
+
+Then create an inventory `hosts.ini` (again, with a text editor — for example
+`vim hosts.ini`) and paste, replacing `PUBLIC_IP` with your VPS address:
+
+```ini
+[all]
+vps ansible_host=PUBLIC_IP ansible_user=root
+```
+
+**4. Run the playbook**
+
+```console
+(.venv) $ ansible-playbook -i hosts.ini -u root --ask-pass playbook.yml
+```
+
+See [Provisioning your VPS](#provisioning-your-vps) for all supported access
+methods (root password, SSH key, or panel).
+
+## Development setup (this repository)
+
+Contributors who have cloned the repository can use the bundled `Makefile`,
+which sets up an isolated virtual environment (`.ansible/`) from
+`requirements.txt` and `requirements.yml`.
+
+```console
+# 1. Create the virtual environment and install Ansible + collections
+$ make create-venv
+
+# 2. Activate the venv (opens a new shell with ansible on PATH)
+$ make activate
+(ansible) $ ansible --version
+
+# 3. Deactivate when you're done
+(ansible) $ exit
+```
+
+You can activate the venv directly instead of using `make activate`:
+
+```console
+$ source .ansible/bin/activate
+```
+
+`make create-venv` installs everything from `requirements.txt`
+(`ansible==9.13.0`, `ansible-lint`, `molecule`, `molecule-plugins[podman]`,
+`yamllint`) plus the collections in `requirements.yml` (`ansible.posix`,
+`community.general`) into `.ansible/`. To refresh everything to the latest
+versions, run `make update-venv`.
 
 ## Supported platforms
 
