@@ -169,6 +169,12 @@ versions, run `make update-venv`.
 | `ssh_port` | SSH port (also opened in the firewall) | `22` |
 | `ssh_disable_password_auth` | Disable password auth (keys only) | `true` |
 | `ssh_disable_root_login` | Disable remote root login | `true` |
+| `ssh_max_auth_tries` | Max SSH auth attempts before disconnect | `3` |
+| `ssh_client_alive_interval` | Seconds between SSH keepalive probes | `300` |
+| `ssh_client_alive_count_max` | Keepalive failures before session end | `2` |
+| `ssh_login_grace_time` | Seconds to complete login | `60` |
+| `ssh_permit_user_environment` | Allow `~/.ssh/environment` for users | `false` |
+| `ssh_allow_agent_forwarding` | Allow SSH agent forwarding | `false` |
 | `firewall_policy` | Firewall default policy | `drop` |
 | `firewall_manage` | Manage the firewall | `true` |
 | `protect_ssh_bruteforce` | Enable SSH brute-force protection | `true` |

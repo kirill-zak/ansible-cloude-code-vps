@@ -63,3 +63,29 @@
     - name: Assert root login is disabled
       ansible.builtin.assert:
         that: "false == sshd_root['changed']"
+
+    - name: Check agent forwarding is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^AllowAgentForwarding\\s+"
+        line: "AllowAgentForwarding no"
+        state: present
+      check_mode: true
+      register: sshd_agent
+
+    - name: Assert agent forwarding is disabled
+      ansible.builtin.assert:
+        that: "false == sshd_agent['changed']"
+
+    - name: Check MaxAuthTries is tightened
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^MaxAuthTries\\s+"
+        line: "MaxAuthTries 3"
+        state: present
+      check_mode: true
+      register: sshd_maxtries
+
+    - name: Assert MaxAuthTries is tightened
+      ansible.builtin.assert:
+        that: "false == sshd_maxtries['changed']"
