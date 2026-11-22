@@ -68,5 +68,7 @@ $ source .ansible/bin/activate
 - Keep `yamllint .` and `ansible-lint` (profile production) clean.
 - Commit message prefixes: `feat`, `fix`, `doc` — one commit per action, short
   body, title under 70 characters. Commit only after confirmation.
+- **Before every push**, show a concise table of the changes being pushed
+  (file → what changed), so the author can review what is about to go out.
 - Do not edit without being asked; keep changes consistent with the existing
   Makefile/role/test/CI structure.
