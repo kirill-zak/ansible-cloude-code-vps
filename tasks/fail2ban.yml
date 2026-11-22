@@ -1,0 +1,50 @@
+---
+# fail2ban setup for SSH brute-force protection. Only runs when
+# protect_ssh_bruteforce is true (see main.yml). In containerized Molecule
+# tests this is disabled so the ban-service is not started without a real init.
+
+- name: Resolve fail2ban ban action per distribution
+  ansible.builtin.set_fact:
+    fail2ban_banaction: "{{ fail2ban_banaction | default(_default_banaction) }}"
+  vars:
+    # firewalld on RHEL-family, ufw on Debian/Ubuntu, nftables on Alpine.
+    _default_banaction: >-
+      {{ 'firewallcmd-ipset'
+         if ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
+         else ('ufw' if ansible_distribution in ['Debian', 'Ubuntu'] else 'nftables-multiport') }}
+
+- name: Ensure fail2ban is installed (Alpine)
+  community.general.apk:
+    name: fail2ban
+    state: present
+  when: ansible_distribution == 'Alpine'
+
+- name: Ensure fail2ban is installed (Debian and Ubuntu)
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+    update_cache: true
+  when: ansible_distribution in ['Debian', 'Ubuntu']
+
+- name: Ensure fail2ban is installed (RHEL-based distributions)
+  ansible.builtin.dnf:
+    name: fail2ban
+    state: present
+    use_backend: dnf4
+  when: ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
+
+- name: Deploy the fail2ban local jail configuration
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+    validate: fail2ban-client -t
+  notify: "restart fail2ban"
+
+- name: Enable and start the fail2ban service
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true
