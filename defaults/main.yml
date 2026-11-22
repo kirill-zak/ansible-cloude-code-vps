@@ -56,8 +56,21 @@ firewall_policy: drop
 # where the firewall daemon is unavailable.
 firewall_manage: true
 
-# When true, enables brute-force protection for SSH (fail2ban compatible).
+# When true, enables brute-force protection for SSH by installing and
+# configuring fail2ban. Disabled in containerized test runs (see molecule
+# converge.yml), where running a ban-service is not meaningful.
 protect_ssh_bruteforce: true
+
+# fail2ban configuration (only used when protect_ssh_bruteforce is true).
+# Ban window and thresholds for the sshd jail.
+fail2ban_bantime: 1h
+fail2ban_findtime: 10m
+fail2ban_maxretry: 5
+
+# Which firewall backend fail2ban should use to enforce bans. The default is
+# resolved per distribution (see tasks/fail2ban.yml): firewalld on RHEL-based,
+# ufw on Debian/Ubuntu, nftables on Alpine. Override to force a specific one.
+# fail2ban_banaction: nftables-multiport
 
 # Optional: enable 2FA (TOTP) for the manager user. Off by default.
 manager_2fa_enabled: false

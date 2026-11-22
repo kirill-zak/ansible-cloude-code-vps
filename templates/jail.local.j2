@@ -1,0 +1,10 @@
+# Managed by the cloude_code_vps role. Changes are overwritten on re-run.
+[DEFAULT]
+bantime  = {{ fail2ban_bantime }}
+findtime = {{ fail2ban_findtime }}
+maxretry = {{ fail2ban_maxretry }}
+banaction = {{ fail2ban_banaction }}
+
+[sshd]
+enabled = true
+port    = ssh
