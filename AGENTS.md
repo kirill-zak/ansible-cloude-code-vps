@@ -35,6 +35,13 @@ Direct venv activation: `source .ansible/bin/activate`.
 - Collections are installed into `.ansible/collections` and referenced via
   `ANSIBLE_COLLECTIONS_PATH` set by the Makefile.
 
+End users do **not** need to clone this repository. The README's
+"Quick start (from scratch, no clone)" section documents the user-facing flow:
+create a venv, `pip install ansible`, then
+`ansible-galaxy role install kirill_zak.cloude_code_vps` and run their own
+playbook. The Makefile targets above are for development and testing of the
+role in this repo.
+
 ## Commands to run
 
 Always activate the venv first (`make activate`) or call binaries with the

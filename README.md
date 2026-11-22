@@ -37,11 +37,71 @@ roles:
   - name: kirill_zak.cloude_code_vps
 ```
 
-## Quick start (local CLI)
+## Quick start (from scratch, no clone)
 
-The repository ships a `Makefile` that sets up an isolated Python virtual
-environment (`.ansible/`) with Ansible and all required collections. This is
-the simplest way to run the role during development or against your VPS.
+You don't need to clone this repository. On a clean laptop, set up a Python
+virtual environment, install Ansible, pull the role from Ansible Galaxy, write
+a small playbook, and run it against your VPS.
+
+**1. Create a virtual environment and install Ansible**
+
+```console
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+(.venv) $ pip install --upgrade pip
+(.venv) $ pip install ansible
+(.venv) $ ansible --version
+```
+
+> Tip: just `ansible`, not `ansible-core` — the `ansible` package bundles the
+> core plus a curated set of collections (including `ansible.posix` and
+> `community.general`, which this role needs).
+
+**2. Install the role from Ansible Galaxy**
+
+```console
+(.venv) $ ansible-galaxy role install kirill_zak.cloude_code_vps
+```
+
+**3. Create a playbook** that calls the role. For example, `playbook.yml`:
+
+```yaml
+---
+- name: Provision VPS
+  hosts: all
+  remote_user: root
+  become: true
+  vars:
+    # Your own public keys, installed for the manager and code users.
+    manager_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3... your-manager-key"
+    cloud_code_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3... your-code-key"
+  roles:
+    - role: kirill_zak.cloude_code_vps
+```
+
+Create an inventory, e.g. `hosts.ini`:
+
+```ini
+[all]
+vps ansible_host=PUBLIC_IP ansible_user=root
+```
+
+**4. Run the playbook**
+
+```console
+(.venv) $ ansible-playbook -i hosts.ini -u root --ask-pass playbook.yml
+```
+
+See [Provisioning your VPS](#provisioning-your-vps) for all supported access
+methods (root password, SSH key, or panel).
+
+## Development setup (this repository)
+
+Contributors who have cloned the repository can use the bundled `Makefile`,
+which sets up an isolated virtual environment (`.ansible/`) from
+`requirements.txt` and `requirements.yml`.
 
 ```console
 # 1. Create the virtual environment and install Ansible + collections
