@@ -63,7 +63,8 @@ $ source .venv/bin/activate
 (.venv) $ ansible-galaxy role install kirill_zak.cloude_code_vps
 ```
 
-**3. Create a playbook** that calls the role. For example, `playbook.yml`:
+**3. Create a playbook** that calls the role. For example, open a new file
+`playbook.yml` in any text editor (e.g. `vim playbook.yml`) and paste:
 
 ```yaml
 ---
@@ -81,7 +82,8 @@ $ source .venv/bin/activate
     - role: kirill_zak.cloude_code_vps
 ```
 
-Create an inventory, e.g. `hosts.ini`:
+Then create an inventory `hosts.ini` (again, with a text editor — for example
+`vim hosts.ini`) and paste, replacing `PUBLIC_IP` with your VPS address:
 
 ```ini
 [all]
