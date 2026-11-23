@@ -13,6 +13,9 @@
     # The fail2ban ban-service is not meaningful without a real init system in
     # the container test runner, so keep it disabled during tests too.
     protect_ssh_bruteforce: false
+    # Automatic package updates rely on real init/package services (apt timers,
+    # systemd timers, dcron) that the container test runner does not provide.
+    auto_updates_enabled: false
   pre_tasks:
     - name: Wait for systemd to complete initialization.  # noqa: command-instead-of-module
       ansible.builtin.command: systemctl is-system-running

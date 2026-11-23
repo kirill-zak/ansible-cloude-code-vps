@@ -12,6 +12,10 @@
   ansible.builtin.include_tasks: fail2ban.yml
   when: protect_ssh_bruteforce
 
+- name: Include automatic system update tasks
+  ansible.builtin.include_tasks: auto_updates.yml
+  when: auto_updates_enabled
+
 - name: Include distro install tasks
   ansible.builtin.include_tasks: install/alpine.yml
   when: ansible_distribution == 'Alpine'

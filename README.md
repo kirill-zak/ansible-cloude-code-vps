@@ -182,6 +182,8 @@ versions, run `make update-venv`.
 | `fail2ban_findtime` | Lookback window for counting failures | `10m` |
 | `fail2ban_maxretry` | Allowed failures before a ban | `5` |
 | `fail2ban_banaction` | Firewall backend fail2ban uses | `auto` (per distro) |
+| `auto_updates_enabled` | Install and configure automatic package updates | `true` |
+| `dnf_automatic_update_type` | dnf-automatic channel (RHEL-family) | `security` |
 | `manager_2fa_enabled` | Enable optional 2FA (TOTP) for `manager` | `false` |
 | `cloud_code_command` | Command that launches Cloud Code | `cloude-code` |
 | `tmux_session_name` | tmux session name | `cloude-code` |
