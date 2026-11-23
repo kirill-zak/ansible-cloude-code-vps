@@ -75,6 +75,17 @@ fail2ban_maxretry: 5
 # Optional: enable 2FA (TOTP) for the manager user. Off by default.
 manager_2fa_enabled: false
 
+# When true, enables automatic security/package updates on the host:
+#   - Debian/Ubuntu: unattended-upgrades (security channel),
+#   - AlmaLinux/Rocky/Fedora: dnf-automatic timer,
+#   - Alpine: daily `apk upgrade` via dcron.
+# Keeps the VPS patched automatically. Disabled in containerized test runs
+# (see molecule converge.yml), where package services are not meaningful.
+auto_updates_enabled: true
+
+# For dnf-automatic (RHEL-based): apply security updates only by default.
+dnf_automatic_update_type: security
+
 # Command used to launch Cloud Code inside tmux (used by the helper script).
 cloud_code_command: cloude-code
 

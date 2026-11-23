@@ -89,3 +89,29 @@
     - name: Assert MaxAuthTries is tightened
       ansible.builtin.assert:
         that: "false == sshd_maxtries['changed']"
+
+    - name: Check UseDNS is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^UseDNS\\s+"
+        line: "UseDNS no"
+        state: present
+      check_mode: true
+      register: sshd_usedns
+
+    - name: Assert UseDNS is disabled
+      ansible.builtin.assert:
+        that: "false == sshd_usedns['changed']"
+
+    - name: Check user environment is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PermitUserEnvironment\\s+"
+        line: "PermitUserEnvironment no"
+        state: present
+      check_mode: true
+      register: sshd_userenv
+
+    - name: Assert user environment is disabled
+      ansible.builtin.assert:
+        that: "false == sshd_userenv['changed']"

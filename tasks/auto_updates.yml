@@ -1,0 +1,83 @@
+---
+# Automatic security/package updates. Only runs when auto_updates_enabled is
+# true (see main.yml). Disabled in containerized Molecule tests, where the
+# package services (apt timers, systemd timers, dcron) are not meaningful.
+
+- name: Enable automatic updates (Debian and Ubuntu)
+  when:
+    - auto_updates_enabled
+    - ansible_distribution in ['Debian', 'Ubuntu']
+  block:
+    - name: Install unattended-upgrades
+      ansible.builtin.apt:
+        name: unattended-upgrades
+        state: present
+        update_cache: true
+
+    - name: Configure automatic update intervals
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+
+- name: Enable automatic updates (RHEL-based distributions)
+  when:
+    - auto_updates_enabled
+    - ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
+  block:
+    - name: Install dnf-automatic
+      ansible.builtin.dnf:
+        name: dnf-automatic
+        state: present
+        use_backend: dnf4
+
+    - name: Configure dnf-automatic update type
+      ansible.builtin.lineinfile:
+        path: /etc/dnf/automatic.conf
+        regexp: "^update_type\\s*="
+        line: "update_type = {{ dnf_automatic_update_type }}"
+        state: present
+
+    - name: Configure dnf-automatic to apply updates
+      ansible.builtin.lineinfile:
+        path: /etc/dnf/automatic.conf
+        regexp: "^apply_updates\\s*="
+        line: "apply_updates = yes"
+        state: present
+
+    - name: Enable and start the dnf-automatic timer
+      ansible.builtin.systemd:
+        name: dnf-automatic.timer
+        state: started
+        enabled: true
+
+- name: Enable automatic updates (Alpine)
+  when:
+    - auto_updates_enabled
+    - ansible_distribution == 'Alpine'
+  block:
+    - name: Install the dcron periodic scheduler
+      community.general.apk:
+        name: dcron
+        state: present
+        no_cache: true
+
+    - name: Enable and start the dcron service
+      ansible.builtin.service:
+        name: dcron
+        state: started
+        enabled: true
+
+    - name: Deploy the daily apk upgrade script
+      ansible.builtin.copy:
+        dest: /etc/periodic/daily/apk-upgrade
+        owner: root
+        group: root
+        mode: "0755"
+        content: |
+          #!/bin/sh
+          /usr/bin/apk upgrade --update
