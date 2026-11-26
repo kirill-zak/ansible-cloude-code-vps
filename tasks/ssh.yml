@@ -16,7 +16,6 @@
   ansible.builtin.dnf:
     name: openssh-server
     state: present
-    use_backend: dnf4
   when: ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
 
 - name: Generate the SSH host keys (Alpine)

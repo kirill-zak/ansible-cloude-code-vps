@@ -27,7 +27,6 @@
   ansible.builtin.dnf:
     name: sudo
     state: present
-    use_backend: dnf4
   when: ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
 
 - name: Create the manager user

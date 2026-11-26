@@ -10,7 +10,6 @@
       ansible.builtin.dnf:
         name: firewalld
         state: present
-        use_backend: dnf4
 
     - name: Ensure the firewalld service is running and enabled
       ansible.builtin.service:

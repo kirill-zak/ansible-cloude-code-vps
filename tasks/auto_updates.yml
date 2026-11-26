@@ -33,7 +33,6 @@
       ansible.builtin.dnf:
         name: dnf-automatic
         state: present
-        use_backend: dnf4
 
     - name: Configure dnf-automatic update type
       ansible.builtin.lineinfile:
