@@ -169,3 +169,16 @@
     - name: Syntax-check the tmux helper with bash
       ansible.builtin.command: bash -n /usr/local/bin/claude-code-session
       changed_when: false
+
+    - name: Check sshd allows only the role users
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^AllowUsers\\s+"
+        line: "AllowUsers manager code"
+        state: present
+      check_mode: true
+      register: sshd_allow_users
+
+    - name: Assert sshd allows only the role users
+      ansible.builtin.assert:
+        that: "false == sshd_allow_users['changed']"

@@ -48,6 +48,12 @@ ssh_permit_user_environment: false
 # enabled because Cloud Code / VS Code needs it for remote port forwarding.
 ssh_allow_agent_forwarding: false
 
+# Users allowed to log in over SSH (AllowUsers). Restricted to the users the
+# role manages; anything else is refused by sshd.
+ssh_allow_users:
+  - "{{ manager_user }}"
+  - "{{ cloud_code_user }}"
+
 # Firewall policy: all ports closed by default; only ssh_port is opened.
 firewall_policy: drop
 

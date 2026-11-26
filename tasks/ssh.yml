@@ -55,6 +55,7 @@
     - { key: "X11Forwarding", value: "no" }
     - { key: "AllowTcpForwarding", value: "yes" }
     - { key: "AllowAgentForwarding", value: "{{ 'yes' if ssh_allow_agent_forwarding else 'no' }}" }
+    - { key: "AllowUsers", value: "{{ ssh_allow_users | join(' ') }}" }
     - { key: "MaxAuthTries", value: "{{ ssh_max_auth_tries }}" }
     - { key: "MaxSessions", value: "10" }
     - { key: "ClientAliveInterval", value: "{{ ssh_client_alive_interval }}" }

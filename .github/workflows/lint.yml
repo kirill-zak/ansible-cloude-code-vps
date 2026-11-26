@@ -33,3 +33,10 @@ jobs:
         run: |
           yamllint .
           ansible-lint .
+
+      - name: Verify the lockout guard
+        run: |
+          if ansible-playbook -i localhost, tests/negative-preflight.yml; then
+            echo "::error::preflight did not fail"
+            exit 1
+          fi

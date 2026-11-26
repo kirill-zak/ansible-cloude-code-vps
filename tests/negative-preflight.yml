@@ -1,0 +1,11 @@
+---
+- name: Preflight must refuse a lockout configuration
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ssh_disable_password_auth: true
+    manager_ssh_public_keys: []
+  tasks:
+    - name: Run the preflight checks
+      ansible.builtin.include_tasks: ../tasks/preflight.yml
