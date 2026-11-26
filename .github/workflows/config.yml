@@ -29,7 +29,7 @@ jobs:
               ("Debian", "kirillzak/docker-debian-ansible", ["12"]),
               ("Fedora", "kirillzak/docker-fedora-ansible", ["44"]),
               ("Rocky Linux", "kirillzak/docker-rockylinux-ansible", ["9.2"]),
-              ("Ubuntu", "kirillzak/docker-ubuntu-ansible", ["22.04"]),
+              ("Ubuntu", "kirillzak/docker-ubuntu-ansible", ["22.04", "24.04"]),
           ]:
               for tag in tags:
                   tests.append({

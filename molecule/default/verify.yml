@@ -131,6 +131,19 @@
       ansible.builtin.assert:
         that: "false == sshd_port['changed']"
 
+    - name: Read the SSH socket drop-in if present
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/ssh.socket.d/port.conf
+      register: ssh_socket_dropin
+      failed_when: false
+
+    - name: Assert the SSH socket drop-in uses the configured port
+      ansible.builtin.assert:
+        that:
+          - "'ListenStream=0.0.0.0:22' in (ssh_socket_dropin.content | b64decode)"
+          - "'ListenStream=[::]:22' in (ssh_socket_dropin.content | b64decode)"
+      when: ssh_socket_dropin.content is defined
+
     - name: Check the Claude Code launcher exists
       ansible.builtin.stat:
         path: /home/code/.local/bin/claude
