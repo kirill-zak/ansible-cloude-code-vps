@@ -195,3 +195,23 @@
           - "'policy drop' in (nftables_file.content | b64decode)"
           - "'tcp dport 22 accept' in (nftables_file.content | b64decode)"
       when: ansible_distribution == 'Alpine'
+
+    - name: Read the fail2ban jail
+      ansible.builtin.slurp:
+        src: /etc/fail2ban/jail.local
+      register: fail2ban_jail
+
+    - name: Assert the fail2ban jail uses the configured SSH port
+      ansible.builtin.assert:
+        that:
+          - "'port    = 22' in (fail2ban_jail.content | b64decode)"
+          - "'banaction' in (fail2ban_jail.content | b64decode)"
+
+    - name: Check the code user has no sudoers file
+      ansible.builtin.stat:
+        path: /etc/sudoers.d/code
+      register: code_sudoers
+
+    - name: Assert the code user has no sudoers file
+      ansible.builtin.assert:
+        that: "not code_sudoers.stat.exists"

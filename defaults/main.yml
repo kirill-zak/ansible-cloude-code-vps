@@ -68,9 +68,16 @@ firewall_manage: true
 firewall_service_manage: true
 
 # When true, enables brute-force protection for SSH by installing and
-# configuring fail2ban. Disabled in containerized test runs (see molecule
-# converge.yml), where running a ban-service is not meaningful.
+# configuring fail2ban. Containerized test runs keep this enabled so the
+# jail config is deployed and validated there, but turn off
+# fail2ban_service_manage, where running a ban-service is not meaningful.
 protect_ssh_bruteforce: true
+
+# When true, the fail2ban service is started and enabled while the jail
+# configuration is deployed. Container-based test runners set this to false
+# so that only the config file is written and checked (see molecule
+# converge.yml).
+fail2ban_service_manage: true
 
 # fail2ban configuration (only used when protect_ssh_bruteforce is true).
 # Ban window and thresholds for the sshd jail.
