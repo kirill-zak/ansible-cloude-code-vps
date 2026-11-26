@@ -7,7 +7,8 @@ set -euo pipefail
 # Overridable via environment, e.g. VPS_HOST=203.0.113.10 ./scripts/connect-cloud-code.sh
 VPS_HOST="${VPS_HOST:-}"                      # your VPS IP / hostname
 VPS_USER="${VPS_USER:-code}"                  # the restricted cloud code user
-TMUX_SESSION="${TMUX_SESSION:-cloude-code}"   # tmux session name
+TMUX_SESSION="${TMUX_SESSION:-claude-code}"   # tmux session name
+REMOTE_HELPER="${REMOTE_HELPER:-/usr/local/bin/${TMUX_SESSION}-session}"
 
 if [[ -z "${VPS_HOST}" ]]; then
   echo "VPS_HOST is not set. Export it, e.g.:" >&2
@@ -15,7 +16,6 @@ if [[ -z "${VPS_HOST}" ]]; then
   exit 1
 fi
 
-# -t forces a TTY (needed for the interactive tmux session); new-session -A
+# -t forces a TTY (needed for the interactive tmux session); the helper
 # attaches to an existing session or creates a new one running Cloud Code.
-exec ssh "${VPS_USER}@${VPS_HOST}" \
-  -t "tmux new-session -A -s '${TMUX_SESSION}' cloude-code"
+exec ssh "${VPS_USER}@${VPS_HOST}" -t "${REMOTE_HELPER}"
