@@ -138,7 +138,16 @@
 
     - name: Assert the Claude Code launcher exists
       ansible.builtin.assert:
-        that: "claude_binary.stat.isreg or claude_binary.stat.islnk"
+        that: "claude_binary.stat.isreg | default(false) or claude_binary.stat.islnk | default(false)"
+
+    - name: Check the Claude Code launcher is linked into /usr/local/bin
+      ansible.builtin.stat:
+        path: /usr/local/bin/claude
+      register: claude_launcher_link
+
+    - name: Assert the Claude Code launcher is a symlink
+      ansible.builtin.assert:
+        that: "claude_launcher_link.stat.islnk | default(false)"
 
     - name: Check the Claude Code version as the code user
       ansible.builtin.command: /home/code/.local/bin/claude --version
@@ -156,3 +165,7 @@
     - name: Assert the tmux helper is executable
       ansible.builtin.assert:
         that: "claude_helper.stat.exists and claude_helper.stat.mode == '0755'"
+
+    - name: Syntax-check the tmux helper with bash
+      ansible.builtin.command: bash -n /usr/local/bin/claude-code-session
+      changed_when: false
