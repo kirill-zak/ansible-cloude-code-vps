@@ -45,8 +45,8 @@
 
 - name: Persist the swap file in fstab
   ansible.posix.mount:
-    path: "{{ swap_file }}"
-    src: none
+    path: none
+    src: "{{ swap_file }}"
     fstype: swap
     opts: sw
     state: present
