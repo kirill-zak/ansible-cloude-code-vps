@@ -31,7 +31,7 @@
         state: present
         target: DROP
         permanent: true
-        immediate: true
+      notify: "reload firewalld"
 
 - name: Configure firewall (ufw) for Debian-based distributions
   when:

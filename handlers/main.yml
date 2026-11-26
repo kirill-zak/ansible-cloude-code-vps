@@ -18,3 +18,9 @@
     state: restarted
   listen: "restart nftables"
   when: firewall_service_manage | default(true) | bool
+
+- name: Reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  listen: "reload firewalld"
