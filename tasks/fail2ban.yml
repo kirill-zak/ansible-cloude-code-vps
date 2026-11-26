@@ -27,6 +27,12 @@
     update_cache: true
   when: ansible_distribution in ['Debian', 'Ubuntu']
 
+- name: Ensure EPEL is available (AlmaLinux and Rocky Linux)
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  when: ansible_distribution in ['AlmaLinux', 'Rocky']
+
 - name: Ensure fail2ban is installed (RHEL-based distributions)
   ansible.builtin.dnf:
     name: fail2ban

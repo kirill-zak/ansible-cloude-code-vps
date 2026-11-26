@@ -38,7 +38,8 @@ for remote development, with the session running inside `tmux`.
   Claude Code in a `claude-code` tmux session and (re)attaches to it.
 - Hardens SSH: only the `manager` and `code` users may log in (`AllowUsers`),
   remote root login is blocked, key-based auth is required, and brute-force
-  protection is enabled with fail2ban.
+  protection is enabled with fail2ban. On AlmaLinux and Rocky Linux the role
+  adds EPEL, which provides the `fail2ban` package.
 - Configures the firewall so all ports are closed by default and only the SSH
   port is open: nftables with a drop policy on Alpine, firewalld with a
   `DROP` target on RHEL-family, and ufw on Debian/Ubuntu.
