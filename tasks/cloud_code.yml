@@ -1,5 +1,14 @@
 ---
 
+- name: Warn when the host has less memory than Claude Code recommends
+  ansible.builtin.debug:
+    msg: >-
+      This host has {{ ansible_memtotal_mb }} MB RAM; Claude Code recommends
+      4096 MB or more. The swap file helps, but expect slow sessions.
+  when:
+    - claude_code_install
+    - ansible_memtotal_mb < 4096
+
 - name: Determine the Claude Code platform identifier
   ansible.builtin.set_fact:
     claude_code_platform: >-

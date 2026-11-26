@@ -19,6 +19,10 @@
   ansible.builtin.include_tasks: auto_updates.yml
   when: auto_updates_enabled
 
+- name: Include swap tasks
+  ansible.builtin.include_tasks: swap.yml
+  when: swap_enabled
+
 - name: Include distro install tasks
   ansible.builtin.include_tasks: install/alpine.yml
   when: ansible_distribution == 'Alpine'

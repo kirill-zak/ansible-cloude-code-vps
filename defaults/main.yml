@@ -112,3 +112,15 @@ claude_code_release_channel: stable
 # Public release bucket the official installer downloads from.
 claude_code_download_base: >-
   https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases
+
+# When true, creates a swap file for small instances. The role targets 1-2 GB
+# VPSes, while Claude Code recommends 4 GB or more of RAM. Disabled in
+# containerized test runs (see molecule converge.yml), where swapon needs a
+# capability the container does not have.
+swap_enabled: true
+
+# Path of the swap file created on the root filesystem.
+swap_file: /swapfile
+
+# Size of the swap file in megabytes.
+swap_size_mb: 2048

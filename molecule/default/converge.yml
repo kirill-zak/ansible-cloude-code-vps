@@ -20,6 +20,9 @@
     # Automatic package updates rely on real init/package services (apt timers,
     # systemd timers, dcron) that the container test runner does not provide.
     auto_updates_enabled: false
+    # swapon needs CAP_SYS_ADMIN, which the container test runner does not
+    # have, so the swap file tasks are disabled during tests.
+    swap_enabled: false
     # Rootless podman cannot use sudo to switch users; root -> code via su works.
     ansible_become_method: su
     manager_ssh_public_keys:
