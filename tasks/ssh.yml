@@ -48,6 +48,7 @@
     mode: "0600"
     validate: "/usr/sbin/sshd -t -f %s"
   loop:
+    - { key: "Port", value: "{{ ssh_port }}" }
     - { key: "PermitRootLogin", value: "{{ 'no' if ssh_disable_root_login else 'yes' }}" }
     - { key: "PasswordAuthentication", value: "{{ 'no' if ssh_disable_password_auth else 'yes' }}" }
     - { key: "PubkeyAuthentication", value: "yes" }

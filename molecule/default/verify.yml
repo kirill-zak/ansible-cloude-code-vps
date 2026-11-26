@@ -115,3 +115,16 @@
     - name: Assert user environment is disabled
       ansible.builtin.assert:
         that: "false == sshd_userenv['changed']"
+
+    - name: Check sshd listens on the configured port
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^Port\\s+"
+        line: "Port 22"
+        state: present
+      check_mode: true
+      register: sshd_port
+
+    - name: Assert sshd listens on the configured port
+      ansible.builtin.assert:
+        that: "false == sshd_port['changed']"
