@@ -7,6 +7,8 @@
     # the role, so its variables are not loaded automatically.
     manager_user: manager
     cloud_code_user: code
+    # Rootless podman cannot use sudo to switch users; root -> code via su works.
+    ansible_become_method: su
   tasks:
     - name: Gather package facts for non-Alpine distributions
       ansible.builtin.package_facts:
@@ -128,3 +130,29 @@
     - name: Assert sshd listens on the configured port
       ansible.builtin.assert:
         that: "false == sshd_port['changed']"
+
+    - name: Check the Claude Code launcher exists
+      ansible.builtin.stat:
+        path: /home/code/.local/bin/claude
+      register: claude_binary
+
+    - name: Assert the Claude Code launcher exists
+      ansible.builtin.assert:
+        that: "claude_binary.stat.isreg or claude_binary.stat.islnk"
+
+    - name: Check the Claude Code version as the code user
+      ansible.builtin.command: /home/code/.local/bin/claude --version
+      become: true
+      become_user: code
+      environment:
+        DISABLE_AUTOUPDATER: "1"
+      changed_when: false
+
+    - name: Check the tmux helper exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/claude-code-session
+      register: claude_helper
+
+    - name: Assert the tmux helper is executable
+      ansible.builtin.assert:
+        that: "claude_helper.stat.exists and claude_helper.stat.mode == '0755'"

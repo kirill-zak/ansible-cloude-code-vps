@@ -16,6 +16,12 @@
     # Automatic package updates rely on real init/package services (apt timers,
     # systemd timers, dcron) that the container test runner does not provide.
     auto_updates_enabled: false
+    # Rootless podman cannot use sudo to switch users; root -> code via su works.
+    ansible_become_method: su
+    manager_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbnX5Aeeid1mHN5BurVxP2SH8XrPZ7ZBHUMeN/AKnvA molecule-test@example"
+    cloud_code_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbnX5Aeeid1mHN5BurVxP2SH8XrPZ7ZBHUMeN/AKnvA molecule-test@example"
   pre_tasks:
     - name: Wait for systemd to complete initialization.  # noqa: command-instead-of-module
       ansible.builtin.command: systemctl is-system-running

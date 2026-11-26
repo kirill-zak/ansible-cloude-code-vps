@@ -1,11 +1,54 @@
 ---
 
-- name: Install the Cloud Code binary when an install URL is provided
-  ansible.builtin.get_url:
-    url: "{{ cloud_code_install_url }}"
-    dest: "/usr/local/bin/{{ cloud_code_command }}"
+- name: Determine the Claude Code platform identifier
+  ansible.builtin.set_fact:
+    claude_code_platform: >-
+      linux-{{ 'arm64' if ansible_architecture in ['aarch64', 'arm64'] else 'x64' }}{{ '-musl' if ansible_distribution == 'Alpine' else '' }}
+  when: claude_code_install
+
+- name: Ensure the Claude Code install directory exists
+  ansible.builtin.file:
+    path: "{{ cloud_code_user_home }}/.local/bin"
+    state: directory
+    owner: "{{ cloud_code_user }}"
+    group: "{{ cloud_code_user }}"
     mode: "0755"
-  when: cloud_code_install_url is defined
+  when: claude_code_install
+
+- name: Check whether Claude Code is already installed
+  ansible.builtin.stat:
+    path: "{{ cloud_code_user_home }}/.local/bin/claude"
+  register: claude_code_binary
+  when: claude_code_install
+
+- name: Resolve the Claude Code release version
+  ansible.builtin.uri:
+    url: "{{ claude_code_download_base }}/{{ claude_code_release_channel }}"
+    return_content: true
+  register: claude_code_release
+  changed_when: false
+  when:
+    - claude_code_install
+    - not claude_code_binary.stat.exists
+
+- name: Download Claude Code for the code user
+  ansible.builtin.get_url:
+    url: "{{ claude_code_download_base }}/{{ claude_code_release.content | trim }}/{{ claude_code_platform }}/claude"
+    dest: "{{ cloud_code_user_home }}/.local/bin/claude"
+    owner: "{{ cloud_code_user }}"
+    group: "{{ cloud_code_user }}"
+    mode: "0755"
+  when:
+    - claude_code_install
+    - not claude_code_binary.stat.exists
+
+- name: Link the Claude Code launcher into /usr/local/bin
+  ansible.builtin.file:
+    src: "{{ cloud_code_user_home }}/.local/bin/claude"
+    dest: "/usr/local/bin/{{ cloud_code_command }}"
+    state: link
+    force: true
+  when: claude_code_install
 
 - name: Deploy the tmux session helper script for Cloud Code
   ansible.builtin.copy:

@@ -86,8 +86,18 @@ auto_updates_enabled: true
 # For dnf-automatic (RHEL-based): apply security updates only by default.
 dnf_automatic_update_type: security
 
-# Command used to launch Cloud Code inside tmux (used by the helper script).
-cloud_code_command: cloude-code
+# Command used to launch Claude Code inside tmux (used by the helper script).
+cloud_code_command: claude
 
-# tmux session name used for the Cloud Code session.
-tmux_session_name: cloude-code
+# tmux session name used for the Claude Code session.
+tmux_session_name: claude-code
+
+# When true, the Claude Code release binary is installed for the code user.
+claude_code_install: true
+
+# Release channel resolved to a concrete version before the download.
+claude_code_release_channel: stable
+
+# Public release bucket the official installer downloads from.
+claude_code_download_base: >-
+  https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases
