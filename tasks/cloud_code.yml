@@ -59,7 +59,7 @@
     force: true
   when: claude_code_install
 
-- name: Deploy the tmux session helper script for Cloud Code
+- name: Deploy the tmux session helper script for Claude Code
   ansible.builtin.copy:
     dest: "/usr/local/bin/{{ tmux_session_name }}-session"
     mode: "0755"

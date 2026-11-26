@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Connect to the VPS as the cloud code user and (re)attach the Cloud Code
+# Connect to the VPS as the Claude Code user and (re)attach the Claude Code
 # session inside tmux. Requires that the cloude_code_vps role has already
 # created the 'code' user on the target host.
 set -euo pipefail
 
 # Overridable via environment, e.g. VPS_HOST=203.0.113.10 ./scripts/connect-cloud-code.sh
 VPS_HOST="${VPS_HOST:-}"                      # your VPS IP / hostname
-VPS_USER="${VPS_USER:-code}"                  # the restricted cloud code user
+VPS_USER="${VPS_USER:-code}"                  # the unprivileged Claude Code user
 TMUX_SESSION="${TMUX_SESSION:-claude-code}"   # tmux session name
 REMOTE_HELPER="${REMOTE_HELPER:-/usr/local/bin/${TMUX_SESSION}-session}"
 
@@ -17,5 +17,5 @@ if [[ -z "${VPS_HOST}" ]]; then
 fi
 
 # -t forces a TTY (needed for the interactive tmux session); the helper
-# attaches to an existing session or creates a new one running Cloud Code.
+# attaches to an existing session or creates a new one running Claude Code.
 exec ssh "${VPS_USER}@${VPS_HOST}" -t "${REMOTE_HELPER}"

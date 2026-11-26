@@ -47,5 +47,5 @@
   ansible.builtin.include_tasks: install/ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
-- name: Include tmux + Cloud Code helper tasks
+- name: Include tmux + Claude Code helper tasks
   ansible.builtin.include_tasks: cloud_code.yml

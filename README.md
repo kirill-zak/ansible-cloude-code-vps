@@ -32,10 +32,10 @@ for remote development, with the session running inside `tmux`.
   - `code` — an unprivileged account (no `sudo`, home directory mode `0700`)
     used to run Claude Code. It is not a filesystem sandbox: the role does not
     restrict where the account can read or write.
-- Downloads the Claude Code release binary for the `code` user into
-  `/home/code/.local/bin/claude` and links it to `/usr/local/bin/claude`.
-- Runs Claude Code in a `claude-code` tmux session and deploys a helper script
-  (`/usr/local/bin/claude-code-session`) to (re)attach it.
+- Downloads the Claude Code release binary into the `code` user's
+  `~/.local/bin/claude` and links it to `/usr/local/bin/claude`.
+- Deploys a helper script (`/usr/local/bin/claude-code-session`) that runs
+  Claude Code in a `claude-code` tmux session and (re)attaches to it.
 - Hardens SSH: only the `manager` and `code` users may log in (`AllowUsers`),
   remote root login is blocked, key-based auth is required, and brute-force
   protection is enabled with fail2ban.
@@ -51,7 +51,7 @@ for remote development, with the session running inside `tmux`.
 * 4 GB or more of RAM is recommended: Claude Code itself recommends 4 GB+.
   1–2 GB VPSes work with the default 2 GB swap file (`swap_enabled: true`,
   `swap_file: /swapfile`, `swap_size_mb: 2048`); the role prints a warning when
-  the host has less than 4 GB of RAM.
+  the host has less than 4 GB of RAM and `claude_code_install` is true.
 * Outbound HTTPS from the VPS to `storage.googleapis.com` (the Claude Code
   release download) and to Anthropic's API endpoints (the agent itself).
 
@@ -198,13 +198,13 @@ To refresh everything to the latest versions, run `make update-venv`.
 | `ssh_allow_agent_forwarding` | Allow SSH agent forwarding | `false` |
 | `firewall_policy` | Firewall default policy | `drop` |
 | `firewall_manage` | Manage the firewall | `true` |
-| `firewall_service_manage` | Start and enable the firewall service | `true` |
+| `firewall_service_manage` | Start and enable the firewall service (Alpine/nftables only) | `true` |
 | `protect_ssh_bruteforce` | Enable fail2ban SSH brute-force protection | `true` |
 | `fail2ban_service_manage` | Start and enable the fail2ban service | `true` |
 | `fail2ban_bantime` | Ban duration for repeat offenders | `1h` |
 | `fail2ban_findtime` | Lookback window for counting failures | `10m` |
 | `fail2ban_maxretry` | Allowed failures before a ban | `5` |
-| `fail2ban_banaction` | Firewall backend fail2ban uses | `auto` (per distro) |
+| `fail2ban_banaction` | Firewall backend fail2ban uses | resolved per distro: `firewallcmd-ipset` / `ufw` / `nftables-multiport` |
 | `auto_updates_enabled` | Install and configure automatic package updates | `true` |
 | `dnf_automatic_update_type` | dnf-automatic channel (RHEL-family) | `security` |
 | `manager_2fa_enabled` | Enable optional 2FA (TOTP) for `manager` | `false` |
