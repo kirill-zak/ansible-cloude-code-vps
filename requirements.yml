@@ -1,15 +1,11 @@
 ---
 collections:
-  # community.general provides the apk module (Alpine) and the ufw module
-  # (Debian/Ubuntu firewall) used by the role and its molecule tests.
-  #
-  # Version range keeps compatibility with the ansible version pinned in
-  # requirements.txt (ansible-core 2.16): community.general 12.x requires
-  # ansible-core >=2.17 and 13.x requires >=2.18.
+  # ansible 15.0.0 bundles ansible-core 2.22 and ships
+  # community.general 14.0.1, so pin the same major line. An older pin would
+  # shadow the bundled collection and trigger a duplicate-collection warning.
   - name: community.general
-    version: '>=11.0.0,<12.0.0'
+    version: '>=14.0.0,<15.0.0'
 
-  # ansible.posix provides authorized_key and firewalld modules used for
-  # SSH key management and firewall configuration.
+  # ansible.posix provides authorized_key, firewalld and mount.
   - name: ansible.posix
-    version: '>=1.5.0,<2.0.0'
+    version: '>=2.0.0,<3.0.0'
