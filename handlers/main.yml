@@ -1,7 +1,7 @@
 ---
 - name: Restart sshd
   ansible.builtin.service:
-    name: sshd
+    name: "{{ sshd_service_name }}"
     state: restarted
   listen: "restart sshd"
 
@@ -34,4 +34,4 @@
     - ssh.socket
     - ssh.service
   listen: "restart ssh socket"
-  when: ssh_socket_active | default(false) | bool
+  when: ssh_socket_enabled | default(false) | bool

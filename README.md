@@ -187,6 +187,7 @@ To refresh everything to the latest versions, run `make update-venv`.
 | `manager_ssh_public_keys` | Public keys installed for `manager` | `[]` |
 | `cloud_code_ssh_public_keys` | Public keys installed for `code` | `[]` |
 | `ssh_port` | SSH port (also opened in the firewall and used by the fail2ban jail) | `22` |
+| `sshd_service_name` | OpenSSH service unit name (auto: `ssh` on Debian/Ubuntu, `sshd` elsewhere) | auto |
 | `ssh_disable_password_auth` | Disable password auth (keys only) | `true` |
 | `ssh_disable_root_login` | Disable remote root login (`PermitRootLogin no`) | `true` |
 | `ssh_allow_users` | Users allowed to log in over SSH (`AllowUsers`) | `manager code` |

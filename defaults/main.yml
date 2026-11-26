@@ -20,6 +20,11 @@ cloud_code_ssh_public_keys: []
 # Port the SSH daemon listens on and that the firewall leaves open.
 ssh_port: 22
 
+# Name of the OpenSSH service unit. Debian and Ubuntu ship `ssh.service`;
+# the `sshd` alias only exists when that unit is enabled, which
+# socket-activated Ubuntu releases do not do.
+sshd_service_name: "{{ 'ssh' if ansible_distribution in ['Debian', 'Ubuntu'] else 'sshd' }}"
+
 # When true, password authentication over SSH is disabled (keys only).
 ssh_disable_password_auth: true
 

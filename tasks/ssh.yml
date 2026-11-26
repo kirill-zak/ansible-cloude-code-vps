@@ -25,7 +25,7 @@
 
 - name: Enable the sshd service
   ansible.builtin.service:
-    name: sshd
+    name: "{{ sshd_service_name }}"
     state: started
     enabled: true
   when: ansible_distribution != 'Alpine'
@@ -73,22 +73,19 @@
 
 - name: Ensure the sshd service is running after configuration
   ansible.builtin.service:
-    name: sshd
+    name: "{{ sshd_service_name }}"
     state: started
     enabled: true
   when: ansible_distribution != 'Alpine'
 
-- name: Check whether SSH uses socket activation
-  ansible.builtin.command:
-    cmd: systemctl is-active ssh.socket
-  register: ssh_socket_state
-  changed_when: false
-  failed_when: false
-  when: ansible_service_mgr == 'systemd'
+- name: Check whether the SSH socket is enabled
+  ansible.builtin.stat:
+    path: /etc/systemd/system/sockets.target.wants/ssh.socket
+  register: ssh_socket_unit
 
-- name: Record the SSH socket activation state
+- name: Record the SSH socket state
   ansible.builtin.set_fact:
-    ssh_socket_active: "{{ (ssh_socket_state.stdout | default('')) == 'active' }}"
+    ssh_socket_enabled: "{{ ssh_socket_unit.stat.exists }}"
 
 - name: Ensure the SSH socket drop-in directory exists
   ansible.builtin.file:
@@ -97,7 +94,7 @@
     owner: root
     group: root
     mode: "0755"
-  when: ssh_socket_active | bool
+  when: ssh_socket_enabled | bool
 
 - name: Point the SSH socket at the configured port
   ansible.builtin.copy:
@@ -110,5 +107,5 @@
     owner: root
     group: root
     mode: "0644"
-  when: ssh_socket_active | bool
+  when: ssh_socket_enabled | bool
   notify: "restart ssh socket"
