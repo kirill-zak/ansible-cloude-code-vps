@@ -4,10 +4,24 @@
     path: "{{ swap_file }}"
   register: swap_file_stat
 
+- name: Check whether the swap file is active
+  ansible.builtin.command:
+    argv:
+      - awk
+      - -v
+      - "f={{ swap_file }}"
+      - "$1 == f { found = 1 } END { exit !found }"
+      - /proc/swaps
+  register: swap_active_check
+  changed_when: false
+  failed_when: false
+
 - name: Create the swap file
   ansible.builtin.command:
     cmd: "dd if=/dev/zero of={{ swap_file }} bs=1M count={{ swap_size_mb }}"
-  when: not swap_file_stat.stat.exists
+  when:
+    - swap_active_check.rc != 0
+    - (swap_file_stat.stat.size | default(0) | int) != ((swap_size_mb | int) * 1024 * 1024)
   changed_when: true
 
 - name: Set swap file permissions
@@ -20,18 +34,13 @@
 - name: Format the swap file
   ansible.builtin.command:
     cmd: "mkswap {{ swap_file }}"
-  when: not swap_file_stat.stat.exists
+  when: swap_active_check.rc != 0
   changed_when: true
-
-- name: Read the active swap devices
-  ansible.builtin.slurp:
-    src: /proc/swaps
-  register: active_swap
 
 - name: Enable the swap file
   ansible.builtin.command:
     cmd: "swapon {{ swap_file }}"
-  when: swap_file not in (active_swap.content | b64decode)
+  when: swap_active_check.rc != 0
   changed_when: true
 
 - name: Persist the swap file in fstab
