@@ -47,7 +47,7 @@ for remote development, with the session running inside `tmux`.
 
 ## Requirements
 
-* Ansible core 2.16 or newer.
+* Ansible core 2.19 or newer.
 * 4 GB or more of RAM is recommended: Claude Code itself recommends 4 GB+.
   1–2 GB VPSes work with the default 2 GB swap file (`swap_enabled: true`,
   `swap_file: /swapfile`, `swap_size_mb: 2048`); the role prints a warning when
@@ -240,7 +240,7 @@ To refresh everything to the latest versions, run `make update-venv`.
 
 ## Dependencies
 
-- `ansible.posix` — `authorized_key`, `firewalld`.
+- `ansible.posix` — `authorized_key`, `firewalld`, `mount`.
 - `community.general` — `apk`, `ufw`.
 
 ## Provisioning your VPS
