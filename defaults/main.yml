@@ -62,6 +62,11 @@ firewall_policy: drop
 # where the firewall daemon is unavailable.
 firewall_manage: true
 
+# When true, the firewall service is started and enabled while the ruleset
+# is deployed. Container-based test runners set this to false so that only
+# the config file is written and checked (see molecule converge.yml).
+firewall_service_manage: true
+
 # When true, enables brute-force protection for SSH by installing and
 # configuring fail2ban. Disabled in containerized test runs (see molecule
 # converge.yml), where running a ban-service is not meaningful.

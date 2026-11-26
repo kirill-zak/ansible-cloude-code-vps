@@ -7,9 +7,13 @@
   # namespace, so connecting as root avoids sudo altogether.
   become: false
   vars:
-    # The firewall daemon (firewalld/ufw) is not available in the container
-    # test runner, so skip firewall management during tests.
-    firewall_manage: false
+    # The firewalld and ufw daemons are not available in the container test
+    # runner, so only the file-based nftables ruleset (Alpine) is managed
+    # during tests.
+    firewall_manage: "{{ ansible_distribution == 'Alpine' }}"
+    # Only the nftables config file is written and checked in the container
+    # test runner; the nftables service must not be started there.
+    firewall_service_manage: false
     # The fail2ban ban-service is not meaningful without a real init system in
     # the container test runner, so keep it disabled during tests too.
     protect_ssh_bruteforce: false

@@ -18,17 +18,20 @@
         state: started
         enabled: true
 
-    - name: Set the default zone policy to drop
-      ansible.posix.firewalld:
-        zone: public
-        state: enabled
-
     - name: Open the SSH port in the public zone
       ansible.posix.firewalld:
         zone: public
         port: "{{ ssh_port }}/tcp"
         permanent: true
         state: enabled
+        immediate: true
+
+    - name: Set the public zone target to DROP
+      ansible.posix.firewalld:
+        zone: public
+        state: present
+        target: DROP
+        permanent: true
         immediate: true
 
 - name: Configure firewall (ufw) for Debian-based distributions
@@ -57,3 +60,31 @@
     - name: Ensure ufw is enabled
       community.general.ufw:
         state: enabled
+
+- name: Configure firewall (nftables) for Alpine
+  when:
+    - firewall_manage
+    - ansible_distribution == 'Alpine'
+    - firewall_policy == 'drop'
+  block:
+    - name: Ensure nftables is installed
+      community.general.apk:
+        name: nftables
+        state: present
+        no_cache: true
+
+    - name: Deploy the nftables ruleset
+      ansible.builtin.template:
+        src: nftables.nft.j2
+        dest: /etc/nftables.nft
+        owner: root
+        group: root
+        mode: "0644"
+      notify: "restart nftables"
+
+    - name: Enable and start nftables
+      ansible.builtin.service:
+        name: nftables
+        state: started
+        enabled: true
+      when: firewall_service_manage

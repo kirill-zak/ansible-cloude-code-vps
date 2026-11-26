@@ -182,3 +182,16 @@
     - name: Assert sshd allows only the role users
       ansible.builtin.assert:
         that: "false == sshd_allow_users['changed']"
+
+    - name: Read the Alpine nftables ruleset
+      ansible.builtin.slurp:
+        src: /etc/nftables.nft
+      register: nftables_file
+      when: ansible_distribution == 'Alpine'
+
+    - name: Assert the Alpine nftables ruleset drops by default
+      ansible.builtin.assert:
+        that:
+          - "'policy drop' in (nftables_file.content | b64decode)"
+          - "'tcp dport 22 accept' in (nftables_file.content | b64decode)"
+      when: ansible_distribution == 'Alpine'

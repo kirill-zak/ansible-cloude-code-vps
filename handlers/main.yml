@@ -10,3 +10,10 @@
     name: fail2ban
     state: restarted
   listen: "restart fail2ban"
+
+- name: Restart nftables
+  ansible.builtin.service:
+    name: nftables
+    state: restarted
+  listen: "restart nftables"
+  when: firewall_service_manage | default(true) | bool
