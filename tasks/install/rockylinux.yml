@@ -3,4 +3,3 @@
   ansible.builtin.dnf:
     name: tmux
     state: present
-    use_backend: dnf4

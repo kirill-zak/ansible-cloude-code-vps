@@ -1,10 +1,10 @@
 ---
 galaxy_info:
   author: kirill_zak
-  description: Harden a VPS and install Cloud Code for remote development
+  description: Harden a VPS and install Claude Code for remote development
   company: https://kirill-zak.ru
   license: GPL-2.0-or-later
-  min_ansible_version: '2.16'
+  min_ansible_version: '2.19'
   namespace: kirill_zak
   role_name: cloude_code_vps
   platforms:

@@ -1,7 +1,8 @@
 ---
 # fail2ban setup for SSH brute-force protection. Only runs when
 # protect_ssh_bruteforce is true (see main.yml). In containerized Molecule
-# tests this is disabled so the ban-service is not started without a real init.
+# tests the jail config is still deployed and validated; only the service
+# start is gated off via fail2ban_service_manage.
 
 - name: Resolve fail2ban ban action per distribution
   ansible.builtin.set_fact:
@@ -26,11 +27,16 @@
     update_cache: true
   when: ansible_distribution in ['Debian', 'Ubuntu']
 
+- name: Ensure EPEL is available (AlmaLinux and Rocky Linux)
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  when: ansible_distribution in ['AlmaLinux', 'Rocky']
+
 - name: Ensure fail2ban is installed (RHEL-based distributions)
   ansible.builtin.dnf:
     name: fail2ban
     state: present
-    use_backend: dnf4
   when: ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
 
 - name: Deploy the fail2ban local jail configuration
@@ -40,7 +46,12 @@
     owner: root
     group: root
     mode: "0644"
-    validate: fail2ban-client -t
+    # Test the staged jail.local against a scratch copy of the installed
+    # config, so it is merged with the stock jail.conf and jail.d
+    # definitions exactly as fail2ban loads it. Works without a running
+    # fail2ban server, on both fail2ban 0.11.x (whose client cannot test a
+    # single file) and fail2ban 1.x.
+    validate: sh -c 'd=$(mktemp -d) && trap "rm -rf $d" EXIT && cp -a /etc/fail2ban/. "$d" && cp %s "$d/jail.local" && fail2ban-server -c "$d" -t'
   notify: "restart fail2ban"
 
 - name: Enable and start the fail2ban service
@@ -48,3 +59,4 @@
     name: fail2ban
     state: started
     enabled: true
+  when: fail2ban_service_manage

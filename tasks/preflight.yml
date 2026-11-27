@@ -1,0 +1,8 @@
+---
+- name: Refuse to disable password authentication without a manager key
+  ansible.builtin.assert:
+    that: manager_ssh_public_keys | length > 0
+    fail_msg: >-
+      ssh_disable_password_auth is true but manager_ssh_public_keys is empty.
+      Installing no key would lock you out of the VPS.
+  when: ssh_disable_password_auth | bool

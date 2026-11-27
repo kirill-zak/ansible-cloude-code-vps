@@ -1,4 +1,7 @@
 ---
+- name: Run preflight checks
+  ansible.builtin.include_tasks: preflight.yml
+
 - name: Include user setup tasks
   ansible.builtin.include_tasks: users.yml
 
@@ -15,6 +18,10 @@
 - name: Include automatic system update tasks
   ansible.builtin.include_tasks: auto_updates.yml
   when: auto_updates_enabled
+
+- name: Include swap tasks
+  ansible.builtin.include_tasks: swap.yml
+  when: swap_enabled
 
 - name: Include distro install tasks
   ansible.builtin.include_tasks: install/alpine.yml
@@ -40,5 +47,5 @@
   ansible.builtin.include_tasks: install/ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
-- name: Include tmux + Cloud Code helper tasks
+- name: Include tmux + Claude Code helper tasks
   ansible.builtin.include_tasks: cloud_code.yml

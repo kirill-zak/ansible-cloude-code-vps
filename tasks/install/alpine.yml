@@ -4,3 +4,10 @@
     name: tmux
     state: present
     no_cache: true
+
+- name: Install bash
+  # The tmux helper script runs under bash; Alpine ships busybox ash only.
+  community.general.apk:
+    name: bash
+    state: present
+    no_cache: true

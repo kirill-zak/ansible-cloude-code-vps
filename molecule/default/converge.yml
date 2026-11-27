@@ -7,16 +7,48 @@
   # namespace, so connecting as root avoids sudo altogether.
   become: false
   vars:
-    # The firewall daemon (firewalld/ufw) is not available in the container
-    # test runner, so skip firewall management during tests.
-    firewall_manage: false
-    # The fail2ban ban-service is not meaningful without a real init system in
-    # the container test runner, so keep it disabled during tests too.
-    protect_ssh_bruteforce: false
+    # The firewalld and ufw daemons are not available in the container test
+    # runner, so only the file-based nftables ruleset (Alpine) is managed
+    # during tests.
+    firewall_manage: "{{ ansible_distribution == 'Alpine' }}"
+    # Only the nftables config file is written and checked in the container
+    # test runner; the nftables service must not be started there.
+    firewall_service_manage: false
+    # The fail2ban jail config is deployed in the container test runner so the
+    # verify assertions can check it, but the ban-service itself is not
+    # started there, hence the service flag off.
+    protect_ssh_bruteforce: true
+    fail2ban_service_manage: false
     # Automatic package updates rely on real init/package services (apt timers,
     # systemd timers, dcron) that the container test runner does not provide.
     auto_updates_enabled: false
+    # swapon needs CAP_SYS_ADMIN, which the container test runner does not
+    # have, so the swap file tasks are disabled during tests.
+    swap_enabled: false
+    # Rootless podman cannot use sudo to switch users; root -> code via su works.
+    ansible_become_method: su
+    manager_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbnX5Aeeid1mHN5BurVxP2SH8XrPZ7ZBHUMeN/AKnvA molecule-test@example"
+    cloud_code_ssh_public_keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbnX5Aeeid1mHN5BurVxP2SH8XrPZ7ZBHUMeN/AKnvA molecule-test@example"
   pre_tasks:
+    # The container test images lack the syslog files referenced by the stock
+    # fail2ban sshd jail definitions, which the jail.local validation (a
+    # fail2ban-server config test) requires. Create them so the validation
+    # passes here the same way it does on a real VPS, where the files exist.
+    - name: Create the syslog files the fail2ban config test expects
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: touch
+        mode: "0640"
+      loop:
+        - /var/log/messages
+        - /var/log/auth.log
+      when: protect_ssh_bruteforce
+      # A plain touch always updates the timestamp and thus always reports
+      # changed; only the files' existence matters for the config test.
+      changed_when: false
+
     - name: Wait for systemd to complete initialization.  # noqa: command-instead-of-module
       ansible.builtin.command: systemctl is-system-running
       register: systemctl_status

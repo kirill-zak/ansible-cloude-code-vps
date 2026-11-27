@@ -27,7 +27,6 @@
   ansible.builtin.dnf:
     name: sudo
     state: present
-    use_backend: dnf4
   when: ansible_distribution in ['AlmaLinux', 'Rocky', 'Fedora']
 
 - name: Create the manager user
@@ -46,7 +45,7 @@
     validate: "/usr/sbin/visudo -cf %s"
     content: "{{ manager_user }} ALL=(ALL) NOPASSWD:ALL\n"
 
-- name: Create the restricted cloud code user
+- name: Create the unprivileged Claude Code user
   ansible.builtin.user:
     name: "{{ cloud_code_user }}"
     state: present
@@ -61,7 +60,7 @@
   loop: "{{ manager_ssh_public_keys }}"
   when: manager_ssh_public_keys | length > 0
 
-- name: Install the cloud code SSH public keys
+- name: Install the Claude Code SSH public keys
   ansible.posix.authorized_key:
     user: "{{ cloud_code_user }}"
     state: present
@@ -69,7 +68,7 @@
   loop: "{{ cloud_code_ssh_public_keys }}"
   when: cloud_code_ssh_public_keys | length > 0
 
-- name: Secure the home directory of the cloud code user
+- name: Secure the home directory of the Claude Code user
   ansible.builtin.file:
     path: "{{ cloud_code_user_home }}"
     state: directory

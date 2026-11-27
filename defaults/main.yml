@@ -2,23 +2,28 @@
 # Administrator user created for VPS management over SSH + sudo.
 manager_user: manager
 
-# Unprivileged user used to run Cloud Code, restricted to its own home dir.
+# Unprivileged user used to run Claude Code (no sudo; home directory mode 0700).
 cloud_code_user: code
 
 # Administrative user home directory.
 manager_user_home: "/home/{{ manager_user }}"
 
-# Cloud Code user home directory.
+# Claude Code user home directory.
 cloud_code_user_home: "/home/{{ cloud_code_user }}"
 
 # Public SSH keys installed for the manager user in authorized_keys.
 manager_ssh_public_keys: []
 
-# Public SSH keys installed for the cloud code user in authorized_keys.
+# Public SSH keys installed for the Claude Code user in authorized_keys.
 cloud_code_ssh_public_keys: []
 
 # Port the SSH daemon listens on and that the firewall leaves open.
 ssh_port: 22
+
+# Name of the OpenSSH service unit. Debian and Ubuntu ship `ssh.service`;
+# the `sshd` alias only exists when that unit is enabled, which
+# socket-activated Ubuntu releases do not do.
+sshd_service_name: "{{ 'ssh' if ansible_distribution in ['Debian', 'Ubuntu'] else 'sshd' }}"
 
 # When true, password authentication over SSH is disabled (keys only).
 ssh_disable_password_auth: true
@@ -45,8 +50,14 @@ ssh_permit_user_environment: false
 
 # When false, disables SSH agent forwarding. Reduces the risk of other hosts
 # using your ssh-agent while connected to this VPS. TCP forwarding stays
-# enabled because Cloud Code / VS Code needs it for remote port forwarding.
+# enabled because Claude Code / VS Code needs it for remote port forwarding.
 ssh_allow_agent_forwarding: false
+
+# Users allowed to log in over SSH (AllowUsers). Restricted to the users the
+# role manages; anything else is refused by sshd.
+ssh_allow_users:
+  - "{{ manager_user }}"
+  - "{{ cloud_code_user }}"
 
 # Firewall policy: all ports closed by default; only ssh_port is opened.
 firewall_policy: drop
@@ -56,10 +67,22 @@ firewall_policy: drop
 # where the firewall daemon is unavailable.
 firewall_manage: true
 
+# When true, the firewall service is started and enabled while the ruleset
+# is deployed. Container-based test runners set this to false so that only
+# the config file is written and checked (see molecule converge.yml).
+firewall_service_manage: true
+
 # When true, enables brute-force protection for SSH by installing and
-# configuring fail2ban. Disabled in containerized test runs (see molecule
-# converge.yml), where running a ban-service is not meaningful.
+# configuring fail2ban. Containerized test runs keep this enabled so the
+# jail config is deployed and validated there, but turn off
+# fail2ban_service_manage, where running a ban-service is not meaningful.
 protect_ssh_bruteforce: true
+
+# When true, the fail2ban service is started and enabled while the jail
+# configuration is deployed. Container-based test runners set this to false
+# so that only the config file is written and checked (see molecule
+# converge.yml).
+fail2ban_service_manage: true
 
 # fail2ban configuration (only used when protect_ssh_bruteforce is true).
 # Ban window and thresholds for the sshd jail.
@@ -86,8 +109,30 @@ auto_updates_enabled: true
 # For dnf-automatic (RHEL-based): apply security updates only by default.
 dnf_automatic_update_type: security
 
-# Command used to launch Cloud Code inside tmux (used by the helper script).
-cloud_code_command: cloude-code
+# Command used to launch Claude Code inside tmux (used by the helper script).
+cloud_code_command: claude
 
-# tmux session name used for the Cloud Code session.
-tmux_session_name: cloude-code
+# tmux session name used for the Claude Code session.
+tmux_session_name: claude-code
+
+# When true, the Claude Code release binary is installed for the code user.
+claude_code_install: true
+
+# Release channel resolved to a concrete version before the download.
+claude_code_release_channel: stable
+
+# Public release bucket the official installer downloads from.
+claude_code_download_base: >-
+  https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases
+
+# When true, creates a swap file for small instances. The role targets 1-2 GB
+# VPSes, while Claude Code recommends 4 GB or more of RAM. Disabled in
+# containerized test runs (see molecule converge.yml), where swapon needs a
+# capability the container does not have.
+swap_enabled: true
+
+# Path of the swap file created on the root filesystem.
+swap_file: /swapfile
+
+# Size of the swap file in megabytes.
+swap_size_mb: 2048

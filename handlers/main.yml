@@ -1,7 +1,7 @@
 ---
 - name: Restart sshd
   ansible.builtin.service:
-    name: sshd
+    name: "{{ sshd_service_name }}"
     state: restarted
   listen: "restart sshd"
 
@@ -10,3 +10,28 @@
     name: fail2ban
     state: restarted
   listen: "restart fail2ban"
+  when: fail2ban_service_manage | default(true) | bool
+
+- name: Restart nftables
+  ansible.builtin.service:
+    name: nftables
+    state: restarted
+  listen: "restart nftables"
+  when: firewall_service_manage | default(true) | bool
+
+- name: Reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  listen: "reload firewalld"
+
+- name: Restart the SSH socket
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - ssh.socket
+    - ssh.service
+  listen: "restart ssh socket"
+  when: ssh_socket_enabled | default(false) | bool
